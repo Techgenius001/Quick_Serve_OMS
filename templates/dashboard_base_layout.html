@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}SmartKibandaski{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FF4F00",
+              secondary: "#5A5A5A",
+              cream: "#FFF5E6",
+              charcoal: "#0B0B0B",
+            },
+            fontFamily: {
+              heading: ["Inter", "ui-sans-serif", "system-ui"],
+              body: ["Poppins", "ui-sans-serif", "system-ui"],
+            },
+            keyframes: {
+              "slide-in": {
+                "0%": { transform: "translateX(100%)", opacity: "0" },
+                "100%": { transform: "translateX(0)", opacity: "1" },
+              },
+              "slide-out": {
+                "0%": { transform: "translateX(0)", opacity: "1" },
+                "100%": { transform: "translateX(100%)", opacity: "0" },
+              },
+            },
+            animation: {
+              "slide-in": "slide-in 0.3s ease-out",
+              "slide-out": "slide-out 0.3s ease-in",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-[#fefdfb] font-body text-secondary overflow-x-hidden max-w-full"
+  >
+    <header class="sticky top-0 z-40 bg-white shadow-sm">
+      <div
+        class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6"
+      >
+        <a href="{% url 'orders:home' %}" class="flex items-center gap-2">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-md"
+          >
+            <svg
+              class="h-6 w-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+          <span class="font-heading text-lg font-bold text-charcoal sm:text-xl"
+            >SmartKibandaski</span
+          >
+        </a>
+        <div class="flex items-center gap-3">
+          <a
+            href="{% url 'orders:cart' %}"
+            class="relative transition hover:text-primary"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            {% if cart|length > 0 %}
+            <span
+              class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white"
+              >{{ cart|length }}</span
+            >
+            {% endif %}
+          </a>
+          <span class="hidden text-sm font-medium text-secondary lg:inline"
+            >Welcome, {{ request.user.username }}</span
+          >
+          <form
+            method="post"
+            action="{% url 'logout' %}"
+            class="hidden md:block"
+          >
+            {% csrf_token %}
+            <button
+              class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-gray-200 sm:px-5"
+            >
+              Logout
+            </button>
+          </form>
+          <button
+            id="mobile-dashboard-menu-btn"
+            class="md:hidden rounded-lg p-2 text-secondary hover:bg-gray-100 transition"
+            aria-label="Toggle menu"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden border-t border-gray-200 bg-white md:hidden"
+      >
+        <div class="px-4 py-3 space-y-3">
+          <a
+            href="{% url 'orders:dashboard' %}"
+            class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >Dashboard Home</a
+          >
+          <a
+            href="{% url 'orders:menu' %}"
+            class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >Browse Menu</a
+          >
+          <a
+            href="{% url 'orders:cart' %}"
+            class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >My Cart</a
+          >
+          <a
+            href="{% url 'orders:order_history' %}"
+            class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >My Orders</a
+          >
+          <a
+            href="{% url 'orders:profile' %}"
+            class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
+            >My Profile</a
+          >
+          <a
+            href="{% url 'orders:home' %}"
+            class="block py-2 text-sm font-semibold text-primary hover:underline transition border-t pt-3"
+            >← Back to Homepage</a
+          >
+          <div class="border-t border-gray-200 pt-3">
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button
+                class="w-full rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-gray-200"
+              >
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+    {% if messages %}
+    <div
+      id="toast-container"
+      class="fixed top-20 right-4 z-50 space-y-2 max-w-md w-full px-4"
+    >
+      {% for message in messages %} {% if message.tags == 'success' %}
+      <div
+        class="toast-message animate-slide-in rounded-lg border border-green-500/20 bg-green-50 px-4 py-3 text-sm text-green-800 shadow-lg flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-green-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        <button
+          onclick="this.parentElement.remove()"
+          class="ml-4 text-green-600 hover:text-green-800"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      {% elif message.tags == 'error' %}
+      <div
+        class="toast-message animate-slide-in rounded-lg border border-red-500/20 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-lg flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-red-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        <button
+          onclick="this.parentElement.remove()"
+          class="ml-4 text-red-600 hover:text-red-800"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      {% elif message.tags == 'warning' %}
+      <div
+        class="toast-message animate-slide-in rounded-lg border border-yellow-500/20 bg-yellow-50 px-4 py-3 text-sm text-yellow-800 shadow-lg flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-yellow-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        <button
+          onclick="this.parentElement.remove()"
+          class="ml-4 text-yellow-600 hover:text-yellow-800"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      {% else %}
+      <div
+        class="toast-message animate-slide-in rounded-lg border border-primary/20 bg-cream px-4 py-3 text-sm text-charcoal shadow-lg flex items-center justify-between"
+      >
+        <span>{{ message }}</span>
+        <button
+          onclick="this.parentElement.remove()"
+          class="ml-4 text-secondary hover:text-charcoal"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      {% endif %} {% endfor %}
+    </div>
+    {% endif %}
+    <main class="mx-auto w-full max-w-6xl px-4 py-10 space-y-6 sm:px-6">
+      {% block content %}{% endblock %}
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mobileMenuButton = document.getElementById(
+          "mobile-dashboard-menu-btn"
+        );
+        const mobileMenu = document.getElementById("mobile-menu");
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+          });
+          document.addEventListener("click", (e) => {
+            if (
+              !mobileMenuButton.contains(e.target) &&
+              !mobileMenu.contains(e.target)
+            ) {
+              mobileMenu.classList.add("hidden");
+            }
+          });
+        }
+        const toastMessages = document.querySelectorAll(".toast-message");
+        toastMessages.forEach((toast) => {
+          setTimeout(() => {
+            toast.classList.remove("animate-slide-in");
+            toast.classList.add("animate-slide-out");
+            setTimeout(() => {
+              toast.remove();
+            }, 300);
+          }, 5000);
+        });
+      });
+    </script>
+  </body>
+</html>

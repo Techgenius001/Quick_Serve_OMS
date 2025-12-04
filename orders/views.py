@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -29,8 +30,13 @@ class MenuListView(ListView):
     """Full menu page with filters by category/tag."""
 
     model = MenuItem
-    template_name = 'orders/menu_list.html'
     context_object_name = 'menu_items'
+
+    def get_template_names(self):
+        """Use dashboard layout if user is logged in."""
+        if self.request.user.is_authenticated:
+            return ['orders/menu_list_dashboard.html']
+        return ['orders/menu_list.html']
 
     def get_queryset(self):
         qs = MenuItem.objects.filter(is_available=True)
@@ -78,10 +84,12 @@ def add_to_cart(request, menu_item_id):
     return redirect(request.META.get('HTTP_REFERER', 'orders:home'))
 
 
+@login_required
 def view_cart(request):
     """Display the shopping cart."""
     cart = Cart(request)
-    return render(request, 'orders/cart.html', {'cart': cart})
+    template = 'orders/cart_dashboard.html' if request.user.is_authenticated else 'orders/cart.html'
+    return render(request, template, {'cart': cart})
 
 
 @require_POST
@@ -188,3 +196,55 @@ def order_success(request, order_id):
     from .models import Order
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'orders/order_success.html', {'order': order})
+
+
+# Dashboard Views
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count
+
+@login_required
+def dashboard(request):
+    """Customer dashboard home."""
+    from .models import Order
+    
+    # Get user statistics
+    orders = Order.objects.filter(user=request.user)
+    total_orders = orders.count()
+    pending_orders = orders.filter(status__in=['pending', 'confirmed', 'preparing']).count()
+    total_spent = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+    
+    # Get recent orders
+    recent_orders = orders.order_by('-created_at')[:5]
+    
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'total_spent': total_spent,
+        'recent_orders': recent_orders,
+    }
+    
+    return render(request, 'orders/dashboard.html', context)
+
+
+@login_required
+def order_history(request):
+    """Customer order history."""
+    from .models import Order
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders/order_history.html', {'orders': orders})
+
+
+@login_required
+def profile(request):
+    """Customer profile page."""
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.phone = request.POST.get('phone', '')
+        user.workplace = request.POST.get('workplace', '')
+        user.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('orders:profile')
+    
+    return render(request, 'orders/profile.html')

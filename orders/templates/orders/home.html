@@ -4,7 +4,7 @@
 <section class="grid gap-8 py-8 lg:grid-cols-2 lg:gap-12">
   <div class="flex flex-col justify-center space-y-6">
     <h1
-      class="font-heading text-4xl font-bold leading-tight text-charcoal lg:text-5xl xl:text-6xl"
+      class="font-heading text-3xl sm:text-4xl font-bold leading-tight text-charcoal lg:text-5xl xl:text-6xl"
     >
       Delicious Kenyan
       <span class="text-primary">Breakfast & Lunch</span>
@@ -14,10 +14,10 @@
       Experience authentic Kenyan flavors from the comfort of your home. Fresh,
       hot meals delivered right to your doorstep in Thika Town.
     </p>
-    <div class="flex flex-wrap gap-4">
+    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
       <a
         href="{% url 'orders:menu' %}"
-        class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-[#e64500]"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-[#e64500]"
       >
         <svg
           class="h-5 w-5"
@@ -34,14 +34,23 @@
         </svg>
         Order Now
       </a>
+      {% if request.user.is_authenticated %}
       <a
-        href="#menu"
-        class="inline-flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white px-6 py-3 text-base font-semibold text-secondary transition hover:border-primary hover:text-primary"
+        href="{% url 'orders:dashboard' %}"
+        class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white px-6 py-3 text-base font-semibold text-secondary transition hover:border-primary hover:text-primary"
       >
-        View Menu
+        Go to Dashboard
       </a>
+      {% else %}
+      <a
+        href="{% url 'login' %}"
+        class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white px-6 py-3 text-base font-semibold text-secondary transition hover:border-primary hover:text-primary"
+      >
+        Login
+      </a>
+      {% endif %}
     </div>
-    <div class="flex flex-wrap gap-6 pt-4">
+    <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
       <div>
         <p class="font-heading text-3xl font-bold text-charcoal lg:text-4xl">
           500+

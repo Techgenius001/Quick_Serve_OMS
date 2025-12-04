@@ -30,7 +30,7 @@ class CustomUserChangeForm(UserChangeForm):
 
 class SignupForm(CustomUserCreationForm):
     class Meta(CustomUserCreationForm.Meta):
-        fields = ('username', 'email', 'phone', 'workplace', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'phone', 'workplace', 'password1', 'password2')
 
 
 class LoginForm(AuthenticationForm):

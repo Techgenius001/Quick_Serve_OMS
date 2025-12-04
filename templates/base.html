@@ -141,7 +141,7 @@
             href="{% url 'accounts:signup' %}"
             class="hidden rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-md transition hover:bg-[#e64500] sm:px-5 sm:py-2.5 md:inline-flex"
           >
-            Login/Signup
+            Signup
           </a>
           {% endif %}
 
@@ -345,7 +345,9 @@
     </div>
     {% endif %}
 
-    <main class="mx-auto w-full max-w-6xl px-4 py-10 space-y-6 sm:px-6">
+    <main
+      class="mx-auto w-full max-w-6xl px-4 py-10 space-y-6 sm:px-6 overflow-x-hidden"
+    >
       {% block content %}{% endblock %}
     </main>
     <footer class="bg-[#1a1a1a] text-gray-300">
