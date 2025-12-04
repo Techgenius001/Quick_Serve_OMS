@@ -1,0 +1,173 @@
+{% extends 'base.html' %} {% load humanize %} {% block title %}Order Confirmed -
+SmartKibandaski{% endblock %} {% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Success Message -->
+    <div
+      class="bg-green-50 border-2 border-green-500 rounded-lg p-8 text-center mb-8"
+    >
+      <div class="text-green-600 mb-4">
+        <svg
+          class="w-20 h-20 mx-auto"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h1>
+      <p class="text-gray-600">
+        Thank you for your order. We're preparing it now.
+      </p>
+    </div>
+
+    <!-- Order Details -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-gray-600 text-xs mb-1">Order Number</p>
+          <p class="font-semibold text-sm">#{{ order.order_number }}</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-gray-600 text-xs mb-1">Order Date</p>
+          <p class="font-semibold text-sm">
+            {{ order.created_at|date:"M d, Y H:i" }}
+          </p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-gray-600 text-xs mb-1">Status</p>
+          <p class="font-semibold text-sm text-yellow-600">
+            {{ order.get_status_display }}
+          </p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-gray-600 text-xs mb-1">Payment Method</p>
+          <p class="font-semibold text-sm">
+            {{ order.get_payment_method_display }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Delivery Info -->
+      <div class="border-t pt-4 mb-6">
+        <h3 class="font-semibold mb-2">Delivery Information</h3>
+        <p class="text-gray-700">{{ order.user.get_full_name }}</p>
+        <p class="text-gray-700">{{ order.user.phone }}</p>
+        <p class="text-gray-700">{{ order.user.workplace }}</p>
+      </div>
+
+      <!-- Order Items -->
+      <div class="border-t pt-4">
+        <h3 class="font-semibold mb-3">Order Items</h3>
+        <div class="space-y-3">
+          {% for item in order.items.all %}
+          <div
+            class="flex justify-between items-start gap-4 pb-3 border-b last:border-b-0"
+          >
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900">{{ item.menu_item.name }}</p>
+              <p class="text-sm text-gray-600">
+                {{ item.quantity }} × KSh {% widthratio item.price 1 1 %}
+              </p>
+            </div>
+            <p class="font-semibold text-gray-900 whitespace-nowrap">
+              KSh {% widthratio item.get_total_price 1 1 %}
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="border-t mt-4 pt-4">
+        <div class="flex justify-between items-center">
+          <span class="text-xl font-bold">Total Amount</span>
+          <span class="text-xl font-bold text-green-600"
+            >KSh {% widthratio order.total_amount 1 1 %}</span
+          >
+        </div>
+      </div>
+
+      {% if order.notes %}
+      <div class="border-t mt-4 pt-4">
+        <p class="text-gray-600 text-sm font-medium">Order Notes</p>
+        <p class="text-gray-800 mt-1">{{ order.notes }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Next Steps -->
+    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+      <h3 class="font-semibold mb-3">What's Next?</h3>
+      <ul class="space-y-3 text-gray-700">
+        <li class="flex items-start">
+          <svg
+            class="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>Your order is being prepared by our kitchen staff</span>
+        </li>
+        <li class="flex items-start">
+          <svg
+            class="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>Estimated delivery time: 30-45 minutes</span>
+        </li>
+        <li class="flex items-start">
+          <svg
+            class="w-5 h-5 mr-2 text-blue-600 flex-shrink-0 mt-0.5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>You'll receive your order at {{ order.user.workplace }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a
+        href="{% url 'orders:home' %}"
+        class="flex-1 bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition duration-200 font-semibold"
+      >
+        Back to Home
+      </a>
+      <a
+        href="{% url 'orders:menu' %}"
+        class="flex-1 bg-gray-200 text-gray-800 text-center py-3 rounded-lg hover:bg-gray-300 transition duration-200 font-semibold"
+      >
+        Order More
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

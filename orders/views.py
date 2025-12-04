@@ -128,3 +128,63 @@ def clear_cart(request):
     cart.clear()
     messages.success(request, 'Cart cleared!')
     return redirect('orders:cart')
+
+
+
+# Checkout Views
+def checkout(request):
+    """Checkout page for placing orders."""
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please login to checkout.')
+        return redirect('login')
+    
+    cart = Cart(request)
+    
+    if len(cart) == 0:
+        messages.warning(request, 'Your cart is empty!')
+        return redirect('orders:cart')
+    
+    if request.method == 'POST':
+        from .forms import CheckoutForm
+        from .models import Order, OrderItem
+        
+        form = CheckoutForm(request.POST)
+        
+        if form.is_valid():
+            # Create order
+            order = form.save(commit=False)
+            order.user = request.user
+            order.delivery_location = request.user.workplace
+            order.phone = request.user.phone
+            order.total_amount = cart.get_total_price()
+            order.save()
+            
+            # Create order items
+            for item in cart:
+                OrderItem.objects.create(
+                    order=order,
+                    menu_item=item['menu_item'],
+                    quantity=item['quantity'],
+                    price=item['price']
+                )
+            
+            # Clear cart
+            cart.clear()
+            
+            messages.success(request, 'Your order has been placed successfully!')
+            return redirect('orders:order_success', order_id=order.id)
+    else:
+        from .forms import CheckoutForm
+        form = CheckoutForm()
+    
+    return render(request, 'orders/checkout.html', {
+        'form': form,
+        'cart': cart
+    })
+
+
+def order_success(request, order_id):
+    """Order confirmation page."""
+    from .models import Order
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'orders/order_success.html', {'order': order})
