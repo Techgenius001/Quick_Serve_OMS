@@ -54,7 +54,7 @@
 - **Save/Cancel actions**
 
 ## User Flow
-
+![alt text](image.png)
 1. **Login** → Redirects to Dashboard Home
 2. **Dashboard** → View stats, recent orders, quick actions
 3. **Browse Menu** → Add items to cart

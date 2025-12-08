@@ -29,7 +29,13 @@ urlpatterns = [
     path('admin-dashboard/orders/', views.admin_orders, name='admin_orders'),
     path('admin-dashboard/orders/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
     path('admin-dashboard/menu/', views.admin_menu, name='admin_menu'),
+    path('admin-dashboard/menu/add/', views.add_menu_item, name='add_menu_item'),
+    path('admin-dashboard/menu/<int:item_id>/edit/', views.edit_menu_item, name='edit_menu_item'),
+    path('admin-dashboard/menu/<int:item_id>/delete/', views.delete_menu_item, name='delete_menu_item'),
     path('admin-dashboard/menu/<int:item_id>/toggle-availability/', views.toggle_menu_availability, name='toggle_menu_availability'),
     path('admin-dashboard/customers/', views.admin_customers, name='admin_customers'),
+    path('admin-dashboard/customers/<int:customer_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
+    path('admin-dashboard/customers/<int:customer_id>/make-admin/', views.make_customer_admin, name='make_customer_admin'),
+    path('admin-dashboard/reports/', views.admin_reports, name='admin_reports'),
 ]
 

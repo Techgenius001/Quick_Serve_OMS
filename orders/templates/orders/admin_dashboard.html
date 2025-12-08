@@ -2,9 +2,10 @@
 {% load humanize %}
 
 {% block title %}Admin Dashboard{% endblock %}
+
 {% block page_title %}Dashboard Overview{% endblock %}
 
-{% block content %}
+{% block dashboard_content %}
 <div class="mb-6">
     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Welcome back, {{ user.first_name|default:user.username }}!</h1>
     <p class="text-gray-600 mt-1">Here's what's happening today</p>
@@ -36,7 +37,7 @@
 <div class="bg-white rounded-lg shadow mb-8">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-gray-800">Recent Orders</h2>
-        <a href="{% url 'orders:admin_orders' %}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">View All →</a>
+        <a href="{% url 'orders:admin_orders' %}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">View All</a>
     </div>
     <div class="overflow-x-auto">
         {% if recent_orders %}

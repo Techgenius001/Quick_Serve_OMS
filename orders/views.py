@@ -17,13 +17,29 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = MenuCategory.objects.all()
-        items = MenuItem.objects.filter(is_available=True)[:6]
+        # Exclude categories named 'Popular' or 'New' to avoid duplication with tags
+        categories = MenuCategory.objects.exclude(name__in=['Popular', 'New'])
+        
+        # Get filter parameters
+        selected_category = self.request.GET.get("category") or ""
+        selected_tag = self.request.GET.get("tag") or ""
+        
+        # Filter items based on selection
+        items = MenuItem.objects.filter(is_available=True)
+        if selected_category:
+            items = items.filter(category__slug=selected_category)
+        elif selected_tag in ['popular', 'new']:
+            items = items.filter(tag=selected_tag)
+        else:
+            # Show featured items on homepage when no filter is selected
+            items = items.filter(is_featured=True)
+        
+        items = items[:8]
 
         context["categories"] = categories
         context["menu_items"] = items
-        context["selected_category"] = None
-        context["selected_tag"] = None
+        context["selected_category"] = selected_category
+        context["selected_tag"] = selected_tag
         return context
 
 
@@ -52,7 +68,8 @@ class MenuListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["categories"] = MenuCategory.objects.all()
+        # Exclude categories named 'Popular' or 'New' to avoid duplication with tags
+        context["categories"] = MenuCategory.objects.exclude(name__in=['Popular', 'New'])
         context["selected_category"] = self.selected_category
         context["selected_tag"] = self.selected_tag
         return context
@@ -384,6 +401,36 @@ def admin_customers(request):
 
 @admin_required
 @require_POST
+def toggle_customer_status(request, customer_id):
+    """Suspend or activate a customer account."""
+    from accounts.models import User
+    
+    customer = get_object_or_404(User, id=customer_id, role=User.Roles.CUSTOMER)
+    customer.is_active = not customer.is_active
+    customer.save()
+    
+    status = "activated" if customer.is_active else "suspended"
+    messages.success(request, f'Customer {customer.username} has been {status}')
+    return redirect('orders:admin_customers')
+
+
+@admin_required
+@require_POST
+def make_customer_admin(request, customer_id):
+    """Promote a customer to admin role."""
+    from accounts.models import User
+    
+    customer = get_object_or_404(User, id=customer_id, role=User.Roles.CUSTOMER)
+    customer.role = User.Roles.ADMIN
+    customer.is_staff = True
+    customer.save()
+    
+    messages.success(request, f'{customer.username} has been promoted to admin')
+    return redirect('orders:admin_customers')
+
+
+@admin_required
+@require_POST
 def update_order_status(request, order_id):
     """Update order status."""
     order = get_object_or_404(Order, id=order_id)
@@ -409,3 +456,191 @@ def toggle_menu_availability(request, item_id):
     menu_item.is_available = data.get('is_available', False)
     menu_item.save()
     return JsonResponse({'success': True})
+
+
+@admin_required
+def add_menu_item(request):
+    """Add new menu item."""
+    from .forms import MenuItemForm
+    
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Menu item added successfully!')
+            return redirect('orders:admin_menu')
+    else:
+        form = MenuItemForm()
+    
+    return render(request, 'orders/menu_item_form.html', {
+        'form': form,
+        'title': 'Add Menu Item',
+        'button_text': 'Add Item'
+    })
+
+
+@admin_required
+def edit_menu_item(request, item_id):
+    """Edit existing menu item."""
+    from .forms import MenuItemForm
+    
+    menu_item = get_object_or_404(MenuItem, id=item_id)
+    
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, request.FILES, instance=menu_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Menu item updated successfully!')
+            return redirect('orders:admin_menu')
+    else:
+        form = MenuItemForm(instance=menu_item)
+    
+    return render(request, 'orders/menu_item_form.html', {
+        'form': form,
+        'title': 'Edit Menu Item',
+        'button_text': 'Update Item',
+        'menu_item': menu_item
+    })
+
+
+@admin_required
+@require_POST
+def delete_menu_item(request, item_id):
+    """Delete a menu item and all related order items."""
+    menu_item = get_object_or_404(MenuItem, id=item_id)
+    item_name = menu_item.name
+    
+    # Delete all related order items first
+    menu_item.order_items.all().delete()
+    
+    # Now delete the menu item
+    menu_item.delete()
+    messages.success(request, f'{item_name} has been deleted successfully!')
+    return redirect('orders:admin_menu')
+
+
+@admin_required
+def admin_reports(request):
+    """Admin reports and analysis page."""
+    from accounts.models import User
+    from django.db.models.functions import TruncDate
+    from datetime import datetime, timedelta
+    import json
+    from decimal import Decimal
+    
+    # Date range filter
+    period = request.GET.get('period', '7')  # Default 7 days
+    try:
+        days = int(period)
+    except ValueError:
+        days = 7
+    
+    start_date = timezone.now() - timedelta(days=days)
+    
+    # Revenue over time
+    daily_revenue = Order.objects.filter(
+        created_at__gte=start_date
+    ).annotate(
+        date=TruncDate('created_at')
+    ).values('date').annotate(
+        revenue=Sum('total_amount'),
+        order_count=Count('id')
+    ).order_by('date')
+    
+    # Convert to JSON-serializable format
+    daily_revenue_list = [
+        {
+            'date': item['date'].isoformat(),
+            'revenue': float(item['revenue']) if item['revenue'] else 0,
+            'order_count': item['order_count']
+        }
+        for item in daily_revenue
+    ]
+    
+    # Total metrics
+    total_orders = Order.objects.filter(created_at__gte=start_date).count()
+    total_revenue = Order.objects.filter(created_at__gte=start_date).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+    
+    avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+    
+    # Order status breakdown
+    status_breakdown = list(Order.objects.filter(
+        created_at__gte=start_date
+    ).values('status').annotate(
+        count=Count('id')
+    ).order_by('-count'))
+    
+    # Top selling items
+    top_items = OrderItem.objects.filter(
+        order__created_at__gte=start_date
+    ).values(
+        'menu_item__name',
+        'menu_item__category__name'
+    ).annotate(
+        total_quantity=Sum('quantity'),
+        total_revenue=Sum(models.F('quantity') * models.F('price'))
+    ).order_by('-total_quantity')[:10]
+    
+    # Top customers
+    top_customers = User.objects.filter(
+        role=User.Roles.CUSTOMER,
+        orders__created_at__gte=start_date
+    ).annotate(
+        order_count=Count('orders'),
+        total_spent=Sum('orders__total_amount')
+    ).order_by('-total_spent')[:10]
+    
+    # Category performance
+    category_performance = OrderItem.objects.filter(
+        order__created_at__gte=start_date
+    ).values(
+        'menu_item__category__name'
+    ).annotate(
+        total_quantity=Sum('quantity'),
+        total_revenue=Sum(models.F('quantity') * models.F('price'))
+    ).order_by('-total_revenue')
+    
+    # Payment method breakdown
+    payment_breakdown_raw = Order.objects.filter(
+        created_at__gte=start_date
+    ).values('payment_method').annotate(
+        count=Count('id'),
+        revenue=Sum('total_amount')
+    ).order_by('-count')
+    
+    payment_breakdown_list = [
+        {
+            'payment_method': item['payment_method'],
+            'count': item['count'],
+            'revenue': float(item['revenue']) if item['revenue'] else 0
+        }
+        for item in payment_breakdown_raw
+    ]
+    
+    # Peak hours analysis
+    hourly_orders = list(Order.objects.filter(
+        created_at__gte=start_date
+    ).extra(
+        select={'hour': 'CAST(strftime("%%H", created_at) AS INTEGER)'}
+    ).values('hour').annotate(
+        count=Count('id')
+    ).order_by('hour'))
+    
+    context = {
+        'period': days,
+        'start_date': start_date,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'avg_order_value': avg_order_value,
+        'daily_revenue': json.dumps(daily_revenue_list),
+        'status_breakdown': json.dumps(status_breakdown),
+        'top_items': list(top_items),
+        'top_customers': list(top_customers),
+        'category_performance': list(category_performance),
+        'payment_breakdown': json.dumps(payment_breakdown_list),
+        'hourly_orders': json.dumps(hourly_orders),
+    }
+    
+    return render(request, 'orders/admin_reports.html', context)

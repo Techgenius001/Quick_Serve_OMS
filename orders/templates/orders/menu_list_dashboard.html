@@ -8,7 +8,7 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
       <img
         src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80"
         alt="Kenyan food"
-        class="h-full w-full object-cover"
+        class="h-full w-full object-cover rounded-lg"
       />
     </div>
     <div class="relative px-6 py-12 text-center sm:px-8">
@@ -51,17 +51,16 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
       </div>
     </div>
   </section>
-  <section>
-    <div class="grid gap-5 grid-cols-2 lg:grid-cols-3">
+  <section class="py-8"><div class="grid gap-5 grid-cols-2 lg:grid-cols-3">
       {% for menu_item in menu_items %}
       <article
-        class="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md transition hover:shadow-xl"
+        class="group flex flex-col overflow-hidden rounded-lg bg-white shadow-md border border-gray-100 transition hover:shadow-xl"
       >
         <div class="relative h-40 w-full overflow-hidden bg-gray-100 sm:h-44">
           {% if menu_item.image %}<img
             src="{{ menu_item.image.url }}"
             alt="{{ menu_item.name }}"
-            class="h-full w-full object-cover transition group-hover:scale-105"
+            class="h-full w-full object-cover rounded-lg transition group-hover:scale-105"
           />{% else %}
           <div class="flex h-full items-center justify-center">
             <svg

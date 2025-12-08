@@ -1,0 +1,410 @@
+{% extends 'admin_dashboard_base.html' %}
+{% load humanize %}
+
+{% block title %}Reports & Analysis{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+    <!-- Header with Period Filter -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Reports & Analysis</h1>
+            <p class="text-slate-600 mt-1">Insights and trends for your business</p>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <label class="text-sm text-slate-600">Period:</label>
+            <select id="periodFilter" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="7" {% if period == 7 %}selected{% endif %}>Last 7 Days</option>
+                <option value="14" {% if period == 14 %}selected{% endif %}>Last 14 Days</option>
+                <option value="30" {% if period == 30 %}selected{% endif %}>Last 30 Days</option>
+                <option value="90" {% if period == 90 %}selected{% endif %}>Last 90 Days</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-600 mb-1">Total Revenue</p>
+                    <p class="text-3xl font-bold text-slate-800">KSh {{ total_revenue|floatformat:0|intcomma }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-600 mb-1">Total Orders</p>
+                    <p class="text-3xl font-bold text-slate-800">{{ total_orders|intcomma }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-600 mb-1">Avg Order Value</p>
+                    <p class="text-3xl font-bold text-slate-800">KSh {{ avg_order_value|floatformat:0|intcomma }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Revenue Trend Chart -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Revenue Trend</h2>
+            {% if daily_revenue %}
+                <div class="relative h-64">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            {% else %}
+                <div class="flex items-center justify-center h-64 text-gray-400">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <p class="text-sm">No revenue data available</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Order Status Breakdown -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Order Status</h2>
+            {% if status_breakdown %}
+                <div class="relative h-64">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            {% else %}
+                <div class="flex items-center justify-center h-64 text-gray-400">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p class="text-sm">No order data available</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Performance & Payment Methods -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Category Performance -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Category Performance</h2>
+            {% if category_performance %}
+                <div class="space-y-3">
+                    {% for category in category_performance %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-700 font-medium">{{ category.menu_item__category__name }}</span>
+                            <span class="text-slate-600">KSh {{ category.total_revenue|floatformat:0|intcomma }}</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            {% widthratio category.total_revenue total_revenue 100 as percentage %}
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ percentage }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="flex items-center justify-center h-64 text-gray-400">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <p class="text-sm">No category data available</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Payment Methods</h2>
+            {% if payment_breakdown %}
+                <div class="relative h-64">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            {% else %}
+                <div class="flex items-center justify-center h-64 text-gray-400">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        <p class="text-sm">No payment data available</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Top Selling Items -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Top Selling Items</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-slate-200">
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Rank</th>
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Item</th>
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Category</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Quantity Sold</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_items %}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="py-3 px-4 text-sm text-slate-600">{{ forloop.counter }}</td>
+                        <td class="py-3 px-4 text-sm font-medium text-slate-800">{{ item.menu_item__name }}</td>
+                        <td class="py-3 px-4 text-sm text-slate-600">{{ item.menu_item__category__name }}</td>
+                        <td class="py-3 px-4 text-sm text-slate-800 text-right">{{ item.total_quantity }}</td>
+                        <td class="py-3 px-4 text-sm text-slate-800 text-right font-medium">KSh {{ item.total_revenue|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Customers -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Top Customers</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-slate-200">
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Rank</th>
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Customer</th>
+                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Email</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Orders</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Total Spent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in top_customers %}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="py-3 px-4 text-sm text-slate-600">{{ forloop.counter }}</td>
+                        <td class="py-3 px-4 text-sm font-medium text-slate-800">
+                            {{ customer.get_full_name|default:customer.username }}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-slate-600">{{ customer.email }}</td>
+                        <td class="py-3 px-4 text-sm text-slate-800 text-right">{{ customer.order_count }}</td>
+                        <td class="py-3 px-4 text-sm text-slate-800 text-right font-medium">KSh {{ customer.total_spent|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Peak Hours -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Peak Hours</h2>
+        {% if hourly_orders %}
+            <div class="relative h-64">
+                <canvas id="hourlyChart"></canvas>
+            </div>
+        {% else %}
+            <div class="flex items-center justify-center h-64 text-gray-400">
+                <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm">No hourly data available</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Period filter
+document.getElementById('periodFilter').addEventListener('change', function() {
+    window.location.href = '?period=' + this.value;
+});
+
+// Revenue Trend Chart
+{% if daily_revenue %}
+const revenueData = JSON.parse('{{ daily_revenue|escapejs }}');
+const revenueCtx = document.getElementById('revenueChart');
+if (revenueCtx) {
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: revenueData.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [{
+                label: 'Revenue (KSh)',
+                data: revenueData.map(d => parseFloat(d.revenue) || 0),
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'KSh ' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+// Status Chart
+{% if status_breakdown %}
+const statusData = JSON.parse('{{ status_breakdown|escapejs }}');
+const statusCtx = document.getElementById('statusChart');
+if (statusCtx) {
+    const statusLabels = {
+        'pending': 'Pending',
+        'confirmed': 'Confirmed',
+        'preparing': 'Preparing',
+        'out_for_delivery': 'Out for Delivery',
+        'delivered': 'Delivered',
+        'cancelled': 'Cancelled'
+    };
+    
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map(s => statusLabels[s.status] || s.status),
+            datasets: [{
+                data: statusData.map(s => s.count),
+                backgroundColor: [
+                    'rgb(251, 191, 36)',
+                    'rgb(34, 197, 94)',
+                    'rgb(59, 130, 246)',
+                    'rgb(168, 85, 247)',
+                    'rgb(14, 165, 233)',
+                    'rgb(239, 68, 68)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+{% endif %}
+
+// Payment Chart
+{% if payment_breakdown %}
+const paymentData = JSON.parse('{{ payment_breakdown|escapejs }}');
+const paymentCtx = document.getElementById('paymentChart');
+if (paymentCtx) {
+    const paymentLabels = {
+        'cash': 'Cash on Delivery',
+        'mpesa': 'M-Pesa'
+    };
+    
+    new Chart(paymentCtx, {
+        type: 'bar',
+        data: {
+            labels: paymentData.map(p => paymentLabels[p.payment_method] || p.payment_method),
+            datasets: [{
+                label: 'Orders',
+                data: paymentData.map(p => p.count),
+                backgroundColor: 'rgb(59, 130, 246)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+// Hourly Chart
+{% if hourly_orders %}
+const hourlyData = JSON.parse('{{ hourly_orders|escapejs }}');
+const hourlyCtx = document.getElementById('hourlyChart');
+if (hourlyCtx) {
+    new Chart(hourlyCtx, {
+        type: 'bar',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => i + ':00'),
+            datasets: [{
+                label: 'Orders',
+                data: Array.from({length: 24}, (_, i) => {
+                    const found = hourlyData.find(h => h.hour === i);
+                    return found ? found.count : 0;
+                }),
+                backgroundColor: 'rgb(168, 85, 247)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+</script>
+{% endblock %}
