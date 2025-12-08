@@ -1,5 +1,13 @@
-{% extends "orders/dashboard_base.html" %} {% block title %}Menu -
-SmartKibandaski{% endblock %} {% block dashboard_content %}
+{%extends "orders/dashboard_base.html"%}{%block title%}Menu -
+SmartKibandaski{%endblock%}{%block dashboard_content%}<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
 <div class="max-w-7xl mx-auto">
   <section
     class="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50 shadow-xl"
@@ -8,7 +16,7 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
       <img
         src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80"
         alt="Kenyan food"
-        class="h-full w-full object-cover rounded-lg"
+        class="h-full w-full object-cover"
       />
     </div>
     <div class="relative px-6 py-12 text-center sm:px-8">
@@ -18,50 +26,55 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
       <p class="mx-auto mt-3 max-w-2xl text-base text-secondary">
         Explore our delicious selection of authentic Kenyan dishes
       </p>
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <a
-          href="{% url 'orders:menu' %}"
-          class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {% if not selected_category and not selected_tag %}bg-primary text-white{% else %}bg-white text-secondary border border-gray-300{% endif %}"
-          ><svg
-            class="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path></svg
-          >All Items</a
-        >{% for category in categories %}<a
-          href="?category={{ category.slug }}"
-          class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {% if selected_category == category.slug %}bg-primary text-white{% else %}bg-white text-secondary border border-gray-300{% endif %}"
-          >{{ category.name }}</a
-        >{% endfor %}<a
-          href="?tag=popular"
-          class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {% if selected_tag == 'popular' %}bg-primary text-white{% else %}bg-white text-secondary border border-gray-300{% endif %}"
-          >Popular</a
-        ><a
-          href="?tag=new"
-          class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {% if selected_tag == 'new' %}bg-primary text-white{% else %}bg-white text-secondary border border-gray-300{% endif %}"
-          >New</a
+      <div class="mt-6 overflow-x-auto scrollbar-hide">
+        <div
+          class="flex items-center gap-3 px-4 sm:justify-center min-w-max sm:min-w-0 sm:flex-wrap"
         >
+          <a
+            href="{%url 'orders:menu'%}"
+            class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {%if not selected_category and not selected_tag%}bg-primary text-white{%else%}bg-white text-secondary border border-gray-300{%endif%}"
+            ><svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path></svg
+            >All Items</a
+          >{%for category in categories%}<a
+            href="?category={{category.slug}}"
+            class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {%if selected_category == category.slug%}bg-primary text-white{%else%}bg-white text-secondary border border-gray-300{%endif%}"
+            >{{category.name}}</a
+          >{%endfor%}<a
+            href="?tag=popular"
+            class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {%if selected_tag == 'popular'%}bg-primary text-white{%else%}bg-white text-secondary border border-gray-300{%endif%}"
+            >Popular</a
+          ><a
+            href="?tag=new"
+            class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition {%if selected_tag == 'new'%}bg-primary text-white{%else%}bg-white text-secondary border border-gray-300{%endif%}"
+            >New</a
+          >
+        </div>
       </div>
     </div>
   </section>
-  <section class="py-8"><div class="grid gap-5 grid-cols-2 lg:grid-cols-3">
-      {% for menu_item in menu_items %}
+  <section class="py-8 bg-orange-50">
+    <div class="grid gap-5 grid-cols-2 lg:grid-cols-3">
+      {%for menu_item in menu_items%}
       <article
         class="group flex flex-col overflow-hidden rounded-lg bg-white shadow-md border border-gray-100 transition hover:shadow-xl"
       >
         <div class="relative h-40 w-full overflow-hidden bg-gray-100 sm:h-44">
-          {% if menu_item.image %}<img
-            src="{{ menu_item.image.url }}"
-            alt="{{ menu_item.name }}"
-            class="h-full w-full object-cover rounded-lg transition group-hover:scale-105"
-          />{% else %}
+          {%if menu_item.image%}<img
+            src="{{menu_item.image.url}}"
+            alt="{{menu_item.name}}"
+            class="h-full w-full object-cover rounded-t-lg transition group-hover:scale-105"
+          />{%else%}
           <div class="flex h-full items-center justify-center">
             <svg
               class="h-12 w-12 text-gray-400"
@@ -77,37 +90,37 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
               ></path>
             </svg>
           </div>
-          {% endif %}{% if menu_item.tag == 'popular' %}<span
-            class="absolute left-2 top-2 rounded-lg bg-primary px-2 py-1 text-xs font-bold text-white shadow-lg"
+          {%endif%}{%if menu_item.tag == 'popular'%}<span
+            class="absolute left-2 top-2 rounded-lg bg-primary px-2 py-1 text-xs font-bold text-white shadow-lg sm:left-3 sm:top-3 sm:px-3 sm:py-1.5"
             >Popular</span
-          >{% elif menu_item.tag == 'new' %}<span
-            class="absolute left-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white shadow-lg"
+          >{%elif menu_item.tag == 'new'%}<span
+            class="absolute left-2 top-2 rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white shadow-lg sm:left-3 sm:top-3 sm:px-3 sm:py-1.5"
             >New</span
-          >{% endif %}
+          >{%endif%}
         </div>
         <div class="flex flex-1 flex-col gap-2 p-3 sm:gap-3 sm:p-4">
           <div class="flex-1">
             <h3
               class="font-heading text-sm font-bold text-charcoal sm:text-base"
             >
-              {{ menu_item.name }}
+              {{menu_item.name}}
             </h3>
             <p
               class="mt-1 text-xs leading-relaxed text-secondary line-clamp-2 sm:text-sm"
             >
-              {{ menu_item.description|truncatewords:8 }}
+              {{menu_item.description|truncatewords:8}}
             </p>
           </div>
           <div class="flex items-center justify-between pt-1">
             <p class="font-heading text-base font-bold text-primary sm:text-lg">
-              KSh {{ menu_item.price|floatformat:0 }}
+              KSh {{menu_item.price|floatformat:0}}
             </p>
             <form
               method="post"
-              action="{% url 'orders:add_to_cart' menu_item.id %}"
+              action="{%url 'orders:add_to_cart' menu_item.id%}"
               class="inline"
             >
-              {% csrf_token %}<input
+              {%csrf_token%}<input
                 type="hidden"
                 name="quantity"
                 value="1"
@@ -121,14 +134,14 @@ SmartKibandaski{% endblock %} {% block dashboard_content %}
           </div>
         </div>
       </article>
-      {% empty %}
+      {%empty%}
       <div
         class="col-span-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center"
       >
         <p class="text-lg text-secondary">No menu items available.</p>
       </div>
-      {% endfor %}
+      {%endfor%}
     </div>
   </section>
 </div>
-{% endblock %}
+{%endblock%}

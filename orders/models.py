@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 
 class MenuCategory(models.Model):
@@ -156,3 +158,50 @@ class OrderItem(models.Model):
     def get_total_price(self):
         """Calculate total price for this order item."""
         return self.price * self.quantity
+
+
+
+class ContactInquiry(models.Model):
+    """Customer inquiry submitted through contact form."""
+    
+    class Status(models.TextChoices):
+        NEW = 'new', 'New'
+        IN_PROGRESS = 'in_progress', 'In Progress'
+        RESOLVED = 'resolved', 'Resolved'
+    
+    class SubjectType(models.TextChoices):
+        ORDER_INQUIRY = 'order_inquiry', 'Order Inquiry'
+        GENERAL_QUESTION = 'general_question', 'General Question'
+        FEEDBACK = 'feedback', 'Feedback'
+        COMPLAINT = 'complaint', 'Complaint'
+        OTHER = 'other', 'Other'
+    
+    # Customer Information
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    
+    # Inquiry Details
+    subject_type = models.CharField(max_length=20, choices=SubjectType.choices)
+    order_number = models.CharField(max_length=20, blank=True, null=True)
+    message = models.TextField()
+    
+    # Status Tracking
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Contact Inquiries'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['status']),
+            models.Index(fields=['email']),
+            models.Index(fields=['name']),
+        ]
+    
+    def __str__(self) -> str:
+        return f"{self.name} - {self.get_subject_type_display()}"

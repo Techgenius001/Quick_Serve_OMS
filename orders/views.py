@@ -273,6 +273,7 @@ from datetime import timedelta
 def admin_dashboard(request):
     """Admin dashboard home with statistics."""
     from accounts.models import User
+    from .models import ContactInquiry
     
     # Get statistics
     all_orders = Order.objects.all()
@@ -287,6 +288,10 @@ def admin_dashboard(request):
     # Total customers
     total_customers = User.objects.filter(role=User.Roles.CUSTOMER).count()
     
+    # Inquiry statistics
+    total_inquiries = ContactInquiry.objects.count()
+    new_inquiries = ContactInquiry.objects.filter(status='new').count()
+    
     # Recent orders
     recent_orders = all_orders.order_by('-created_at')[:10]
     
@@ -296,6 +301,8 @@ def admin_dashboard(request):
         'today_revenue': today_revenue,
         'today_orders': today_orders.count(),
         'total_customers': total_customers,
+        'total_inquiries': total_inquiries,
+        'new_inquiries': new_inquiries,
         'recent_orders': recent_orders,
     }
     
@@ -644,3 +651,124 @@ def admin_reports(request):
     }
     
     return render(request, 'orders/admin_reports.html', context)
+
+
+
+# Contact Views
+def contact_page(request):
+    """Contact page with form for customer inquiries."""
+    if request.method == 'POST':
+        from .forms import ContactForm
+        from django.core.mail import send_mail
+        from django.conf import settings
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        form = ContactForm(request.POST)
+        
+        if form.is_valid():
+            inquiry = form.save()
+            
+            # Send email notification
+            try:
+                subject = f"New Contact Inquiry from {inquiry.name}"
+                message = f"""
+New inquiry received from SmartKibandaski website
+
+Customer Details:
+- Name: {inquiry.name}
+- Email: {inquiry.email}
+- Phone: {inquiry.phone}
+
+Inquiry Type: {inquiry.get_subject_type_display()}
+Order Number: {inquiry.order_number or 'N/A'}
+
+Message:
+{inquiry.message}
+
+Submitted: {inquiry.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+
+View in admin dashboard: http://localhost:8000/admin/inquiries/
+"""
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.ADMIN_EMAIL],
+                    fail_silently=False,
+                    html_message=None,
+                )
+                
+                messages.success(request, 'Thank you for contacting us! We will get back to you soon.')
+            except Exception as e:
+                logger.error(f"Failed to send inquiry email: {e}")
+                messages.warning(request, 'Your inquiry has been saved, but there was an issue sending the notification. We will still review your message.')
+            
+            return redirect('orders:contact')
+    else:
+        from .forms import ContactForm
+        form = ContactForm()
+    
+    return render(request, 'orders/contact.html', {'form': form})
+
+
+# Admin Inquiries Views
+@admin_required
+def admin_inquiries(request):
+    """Admin page for managing customer inquiries."""
+    from .models import ContactInquiry
+    
+    inquiries = ContactInquiry.objects.all()
+    
+    # Status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        inquiries = inquiries.filter(status=status_filter)
+    
+    # Date filter
+    date_filter = request.GET.get('date', '')
+    if date_filter:
+        from datetime import datetime
+        try:
+            filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
+            inquiries = inquiries.filter(created_at__date=filter_date)
+        except ValueError:
+            pass
+    
+    # Search filter
+    search = request.GET.get('search', '')
+    if search:
+        inquiries = inquiries.filter(
+            models.Q(name__icontains=search) |
+            models.Q(email__icontains=search)
+        )
+    
+    context = {
+        'inquiries': inquiries,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
+        'search': search,
+        'status_choices': ContactInquiry.Status.choices,
+    }
+    
+    return render(request, 'orders/admin_inquiries.html', context)
+
+
+@admin_required
+@require_POST
+def update_inquiry_status(request, inquiry_id):
+    """Update inquiry status via AJAX."""
+    from .models import ContactInquiry
+    import json
+    
+    inquiry = get_object_or_404(ContactInquiry, id=inquiry_id)
+    data = json.loads(request.body)
+    new_status = data.get('status')
+    
+    if new_status in dict(ContactInquiry.Status.choices):
+        inquiry.status = new_status
+        inquiry.save()
+        return JsonResponse({'success': True, 'status': inquiry.get_status_display()})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid status'}, status=400)

@@ -37,5 +37,12 @@ urlpatterns = [
     path('admin-dashboard/customers/<int:customer_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
     path('admin-dashboard/customers/<int:customer_id>/make-admin/', views.make_customer_admin, name='make_customer_admin'),
     path('admin-dashboard/reports/', views.admin_reports, name='admin_reports'),
+    
+    # Contact URLs
+    path('contact/', views.contact_page, name='contact'),
+    
+    # Admin Inquiries URLs
+    path('admin-dashboard/inquiries/', views.admin_inquiries, name='admin_inquiries'),
+    path('admin-dashboard/inquiries/<int:inquiry_id>/update-status/', views.update_inquiry_status, name='update_inquiry_status'),
 ]
 

@@ -137,3 +137,17 @@ LOGOUT_REDIRECT_URL = 'orders:home'
 
 # Cart settings
 CART_SESSION_ID = 'cart'
+
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'SmartKibandaski <hotel@smartkibandaski.com>'
+ADMIN_EMAIL = 'samuelnjhihia333@gmail.com'
+
+# For production, use:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'hotel@smartkibandaski.com'
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
