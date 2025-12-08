@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: smartkibandaski
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn smartkibadaski.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: RENDER
+        value: true
+      - key: ADMIN_EMAIL
+        value: samuelnjhihia333@gmail.com
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smartkibandaski-db
+          property: connectionString
+
+databases:
+  - name: smartkibandaski-db
+    databaseName: smartkibandaski
+    user: smartkibandaski
