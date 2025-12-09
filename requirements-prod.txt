@@ -1,0 +1,2 @@
+# Production-only dependencies (for Render deployment)
+psycopg2-binary==2.9.9

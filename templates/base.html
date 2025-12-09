@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}SmartKibandaski{% endblock %}</title>
+    <title>{% block title %}Quick Serve{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -46,7 +46,7 @@
     </script>
   </head>
   <body
-    class="min-h-screen bg-[#fefdfb] font-body text-secondary overflow-x-hidden max-w-full"
+    class="min-h-screen bg-[#fefdfb] font-body text-secondary overflow-x-hidden"
   >
     <header class="sticky top-0 z-20 bg-white shadow-sm">
       <div
@@ -71,7 +71,7 @@
             </svg>
           </div>
           <span class="font-heading text-lg font-bold text-charcoal sm:text-xl"
-            >SmartKibandaski</span
+            >Quick Serve</span
           >
         </a>
         <nav
@@ -87,7 +87,11 @@
             class="transition hover:text-primary"
             >Menu</a
           >
-          <a href="#" class="transition hover:text-primary">Contact</a>
+          <a
+            href="{% url 'orders:contact' %}"
+            class="transition hover:text-primary"
+            >Contact</a
+          >
         </nav>
         <div class="flex items-center gap-3">
           <a
@@ -185,7 +189,7 @@
             >Menu</a
           >
           <a
-            href="#"
+            href="{% url 'orders:contact' %}"
             class="block py-2 text-sm font-semibold text-secondary hover:text-primary transition"
             >Contact</a
           >
@@ -345,9 +349,7 @@
     </div>
     {% endif %}
 
-    <main
-      class="mx-auto w-full max-w-6xl px-4 py-10 space-y-6 sm:px-6 overflow-x-hidden"
-    >
+    <main class="mx-auto w-full max-w-6xl px-4 py-10 space-y-6 sm:px-6">
       {% block content %}{% endblock %}
     </main>
     <footer class="bg-[#1a1a1a] text-gray-300">
@@ -375,7 +377,7 @@
               </div>
               <div>
                 <p class="font-heading text-lg font-bold text-white">
-                  SmartKibandaski
+                  Quick Serve
                 </p>
               </div>
             </div>
@@ -450,7 +452,11 @@
                 <a href="#" class="transition hover:text-primary">About Us</a>
               </li>
               <li>
-                <a href="#" class="transition hover:text-primary">Contact</a>
+                <a
+                  href="{% url 'orders:contact' %}"
+                  class="transition hover:text-primary"
+                  >Contact</a
+                >
               </li>
             </ul>
           </div>
@@ -513,7 +519,7 @@
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span>info@smartkibandaski.co.ke</span>
+                <span>info@quickserve.co.ke</span>
               </li>
             </ul>
           </div>
@@ -564,7 +570,7 @@
 
         <div class="mt-8 border-t border-gray-700 pt-6 text-center text-sm">
           <p>
-            &copy; {% now 'Y' %} SmartKibandaski. All rights reserved. Made with
+            &copy; {% now 'Y' %} Quick Serve. All rights reserved. Made with
             <span class="text-primary">🧡</span> in Kenya
           </p>
         </div>

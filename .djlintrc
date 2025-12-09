@@ -5,6 +5,6 @@
   "format_css": false,
   "format_js": false,
   "profile": "django",
-  "exclude": "node_modules,.venv",
+  "exclude": "node_modules,.venv,orders/templates/orders/menu_item_form.html",
   "format": false
 }

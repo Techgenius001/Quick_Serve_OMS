@@ -155,13 +155,12 @@ ADMIN_EMAIL = 'samuelnjhihia333@gmail.com'
 
 # Production settings
 import os
-import dj_database_url
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Update for production
 if os.environ.get('RENDER'):
+    import dj_database_url
+    from dotenv import load_dotenv
+    load_dotenv()
     DEBUG = False
     ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'), 'localhost', '127.0.0.1']
     

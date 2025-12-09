@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block title %}SmartKibandaski | Home{% endblock %}
+{% extends "base.html" %}
+{% block title %}Quick Serve | Home{% endblock %}
 {% block content %}
 <style>
   .scrollbar-hide::-webkit-scrollbar {
@@ -133,10 +134,8 @@
     </p>
   </div>
 
-  <div class="mt-10 overflow-x-auto scrollbar-hide">
-    <div
-      class="flex items-center gap-3 px-4 sm:justify-center min-w-max sm:min-w-0 sm:flex-wrap"
-    >
+  <div class="mt-10 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div class="flex items-center gap-3 sm:justify-center sm:flex-wrap">
       <a
         href="{% url 'orders:home' %}"
         class="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition {% if not selected_category and not selected_tag %}bg-primary text-white{% else %}bg-white text-secondary border border-gray-300 hover:border-primary hover:text-primary{% endif %}"
@@ -417,7 +416,7 @@
         </div>
       </a>
       <a
-        href="mailto:hotel@smartkibandaski.com"
+        href="mailto:info@quickserve.co.ke"
         class="flex items-center gap-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 p-4 rounded-xl transition group"
       >
         <div
@@ -442,7 +441,7 @@
             Email Us
           </p>
           <p class="text-white font-bold text-sm sm:text-base">
-            hotel@smartkibandaski.com
+            info@quickserve.co.ke
           </p>
         </div>
       </a>
