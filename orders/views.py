@@ -17,8 +17,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Exclude categories named 'Popular' or 'New' to avoid duplication with tags
-        categories = MenuCategory.objects.exclude(name__in=['Popular', 'New'])
+        categories = MenuCategory.objects.all()
         
         # Get filter parameters
         selected_category = self.request.GET.get("category") or ""
@@ -68,8 +67,7 @@ class MenuListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Exclude categories named 'Popular' or 'New' to avoid duplication with tags
-        context["categories"] = MenuCategory.objects.exclude(name__in=['Popular', 'New'])
+        context["categories"] = MenuCategory.objects.all()
         context["selected_category"] = self.selected_category
         context["selected_tag"] = self.selected_tag
         return context
