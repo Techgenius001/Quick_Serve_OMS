@@ -158,17 +158,19 @@ import os
 
 # Update for production
 if os.environ.get('RENDER'):
-    import dj_database_url
     from dotenv import load_dotenv
     load_dotenv()
     DEBUG = False
     ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'), 'localhost', '127.0.0.1']
     
-    # Database
-    DATABASES['default'] = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+    # Database - Keep SQLite for Render
+    # Note: SQLite on Render is ephemeral and will reset on each deploy
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
     
     # Static files with WhiteNoise
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
