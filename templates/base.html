@@ -120,8 +120,7 @@
           </a>
           {% if request.user.is_authenticated %}
           <span class="hidden text-sm font-medium text-secondary lg:inline">
-            Welcome, {% if request.user.first_name %} {{ request.user.first_name
-            }} {% else %} {{ request.user.username }} {% endif %}
+            Welcome, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
           </span>
           <form
             method="post"
@@ -196,9 +195,7 @@
           {% if request.user.is_authenticated %}
           <div class="border-t border-gray-200 pt-3">
             <p class="text-sm font-medium text-secondary mb-2">
-              Welcome, {% if request.user.first_name %} {{
-              request.user.first_name }} {% else %} {{ request.user.username }}
-              {% endif %}
+              Welcome, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
             </p>
             <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}

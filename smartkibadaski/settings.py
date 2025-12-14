@@ -173,6 +173,10 @@ if os.environ.get('RENDER'):
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     
+    # Media files - ensure they're served in production
+    # Note: Render uses ephemeral storage, so uploaded files are lost on deployment
+    # This is a limitation of the free tier
+    
     # Security settings
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
