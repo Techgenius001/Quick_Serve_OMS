@@ -25,6 +25,12 @@ class CheckoutForm(forms.ModelForm):
 class MenuItemForm(forms.ModelForm):
     """Form for adding/editing menu items."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure category field has proper queryset
+        self.fields['category'].queryset = MenuCategory.objects.all()
+        self.fields['category'].empty_label = "Select a category"
+
     class Meta:
         model = MenuItem
         fields = ['name', 'description', 'price', 'category', 'image', 'is_available', 'is_featured', 'tag']
