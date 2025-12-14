@@ -21,3 +21,6 @@ EOF
 
 # Create default menu categories
 python manage.py create_categories
+
+# Migrate existing images to Cloudinary (only if Cloudinary is configured)
+python manage.py migrate_to_cloudinary
