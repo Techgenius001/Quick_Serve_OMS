@@ -208,8 +208,6 @@ if os.environ.get('RENDER'):
     ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'), 'localhost', '127.0.0.1']
     
     # Use Cloudinary for media storage in production
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
     # Database - Keep SQLite for Render
     # Note: SQLite on Render is ephemeral and will reset on each deploy
     DATABASES = {
@@ -221,7 +219,16 @@ if os.environ.get('RENDER'):
     
     # Static files with WhiteNoise (keep static files local for better performance)
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # Modern storage configuration (Django 4.2+)
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     
     # Media files - ensure they're served in production
     # Note: Render uses ephemeral storage, so uploaded files are lost on deployment
