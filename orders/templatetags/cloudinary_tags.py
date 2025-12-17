@@ -25,16 +25,32 @@ def smart_image_url(image_field):
         # If it's an external URL (starts with http), return as is
         if image_name.startswith('http'):
             return image_name
-            
-        # If it's a local file, use the normal URL method
+        
+        # Check if we're using Cloudinary storage in production
+        if os.environ.get('RENDER') and hasattr(settings, 'CLOUDINARY_STORAGE'):
+            cloud_name = settings.CLOUDINARY_STORAGE.get('CLOUD_NAME')
+            if cloud_name and image_name:
+                # Construct proper Cloudinary URL with resource type
+                # Format: https://res.cloudinary.com/{cloud_name}/image/upload/{path}
+                # Remove leading slash if present
+                path = image_name.lstrip('/')
+                return f"https://res.cloudinary.com/{cloud_name}/image/upload/{path}"
+        
+        # For local development or if Cloudinary isn't configured, use the standard URL
         return image_field.url
         
     except Exception as e:
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error generating image URL: {e}, image_field: {image_field}")
+        
         # Fallback: if it looks like a URL, return it
         image_str = str(image_field)
         if image_str.startswith('http'):
             return image_str
         return ''
+
 
 
 @register.filter

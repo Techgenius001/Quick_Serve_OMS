@@ -151,10 +151,6 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-# Override MEDIA_URL for Cloudinary in production
-if os.environ.get('RENDER') and all(CLOUDINARY_STORAGE.values()):
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
-
 # Only configure Cloudinary if credentials are provided
 if all(CLOUDINARY_STORAGE.values()):
     import cloudinary
@@ -167,6 +163,20 @@ if all(CLOUDINARY_STORAGE.values()):
         api_secret=CLOUDINARY_STORAGE['API_SECRET'],
         secure=True
     )
+    
+    # Configure django-cloudinary-storage settings
+    CLOUDINARY_STORAGE['STATICFILES_MANIFEST_ROOT'] = BASE_DIR / 'staticfiles'
+    CLOUDINARY_STORAGE['MEDIA_TAG'] = 'media'
+    CLOUDINARY_STORAGE['INVALID_VIDEO_ERROR_MESSAGE'] = 'Please upload a valid video file.'
+
+# Set MEDIA_URL based on whether we're using Cloudinary or local storage
+if os.environ.get('RENDER') and all(CLOUDINARY_STORAGE.values()):
+    # Cloudinary will handle media URLs automatically
+    MEDIA_URL = '/media/'
+else:
+    # Local development
+    MEDIA_URL = '/media/'
+
     
     # Cloudinary is configured - storage will be set in production block
 
