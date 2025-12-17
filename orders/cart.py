@@ -75,6 +75,11 @@ class Cart:
             cart[str(menu_item.id)]['menu_item'] = menu_item
         
         for item in cart.values():
+            # Skip items that don't have a matching database record
+            # This happens when the DB is wiped (e.g. Render ephemeral) but session persists
+            if 'menu_item' not in item:
+                continue
+                
             item['price'] = Decimal(item['price'])
             item['total_price'] = item['price'] * item['quantity']
             yield item
