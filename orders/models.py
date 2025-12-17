@@ -6,9 +6,11 @@ from django.template.loader import render_to_string
 
 
 
+from cloudinary.models import CloudinaryField
+
 class MenuCategory(models.Model):
     """High-level grouping for menu items (Breakfast, Lunch, etc.)."""
-
+    
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     is_featured = models.BooleanField(default=False)
@@ -39,7 +41,7 @@ class MenuItem(models.Model):
     category = models.ForeignKey(
         MenuCategory, related_name="items", on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to="menu_items/", blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)
     is_available = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False, help_text="Show on homepage")
     tag = models.CharField(

@@ -45,9 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',  # Must be before django.contrib.staticfiles
+    # cloudinary_storage removed - using native CloudinaryField
     'django.contrib.staticfiles',
-    'cloudinary',  # Can be after staticfiles
+    'cloudinary',  # Required for CloudinaryField
     'django.contrib.humanize',
     'accounts',
     'orders',
@@ -162,13 +162,9 @@ if all(CLOUDINARY_STORAGE.values()):
     CLOUDINARY_STORAGE['MEDIA_TAG'] = 'media'
     CLOUDINARY_STORAGE['INVALID_VIDEO_ERROR_MESSAGE'] = 'Please upload a valid video file.'
 
-# Set MEDIA_URL based on whether we're using Cloudinary or local storage
-if os.environ.get('RENDER') and all(CLOUDINARY_STORAGE.values()):
-    # Cloudinary will handle media URLs automatically
-    MEDIA_URL = '/media/'
-else:
-    # Local development
-    MEDIA_URL = '/media/'
+# Set MEDIA_URL    
+    # Cloudinary is configured via environment variables and CloudinaryField
+
 
     
     # Cloudinary is configured - storage will be set in production block
@@ -220,15 +216,9 @@ if os.environ.get('RENDER'):
     # Static files with WhiteNoise (keep static files local for better performance)
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     
-    # Modern storage configuration (Django 4.2+)
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
+    # Use WhiteNoise for static files storage
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
     
     # Media files - ensure they're served in production
     # Note: Render uses ephemeral storage, so uploaded files are lost on deployment
