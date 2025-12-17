@@ -45,21 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',  # Must be before django.contrib.staticfiles
     'django.contrib.staticfiles',
+    'cloudinary',  # Can be after staticfiles
     'django.contrib.humanize',
     'accounts',
     'orders',
 ]
 
-# Add Cloudinary apps if available
-try:
-    import cloudinary_storage
-    import cloudinary
-    # Insert cloudinary_storage before django.contrib.staticfiles
-    INSTALLED_APPS.insert(-1, 'cloudinary_storage')
-    INSTALLED_APPS.insert(-1, 'cloudinary')
-except ImportError:
-    pass
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
